@@ -1,42 +1,90 @@
-import React, { createContext, useState } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import React, { createContext, useEffect, useState } from "react";
+import axios from "axios";
 
 export const API_Context = createContext();
 
 export const API_Provider = ({ children }) => {
-  const [res, Setres] = useState("");
+  const [res, SetRes] = useState("");
 
-  const api_key = import.meta.env.VITE_GEMINI_API_KEY;
+ 
 
-  const ai = new GoogleGenerativeAI({ apiKey: api_key });
+  const generateContent = async (data) => {
+     const prompt = `
+You are an expert learning assistant.
 
-  const generateContent = async () => {
+The user has provided the following details:
+- Goal: ${data.goal}
+- Days to study: ${data.days}
+- Time per day: ${data.timePerDay} hours
+- Other commitments: ${data.otherWorks}
+- Topics to learn: ${data.topics}
+
+Create a personalized learning schedule based on the above inputs.
+
+⚠️ Strict Output Format (in JSON):
+
+{
+  "goal":"write here what he wanted to become in single word only like goal what he has ",
+  "roadmap": [
+    { "day": 1, "topics": ["..."], "estimated_time": "X hours" },
+    ...
+  ],
+  "resources": {
+    "youtube": ["https://www.youtube.com/...", "..."],
+    "books": ["Book Title by Author", "..."]
+  },
+  "additionalSuggestions": [
+    "Technology 1",
+    "Technology 2"
+  ]
+}
+
+Make sure the roadmap fits into the user's available days and time per day.
+Suggest only relevant and beginner-friendly YouTube channels and books.
+Also, recommend other technologies/tools the user should explore to complement their learning goal.
+
+Only respond with the JSON. Do not include any explanation or extra text.
+`;
+
     try {
-      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-      const result = await model.generateContent([
+      const response = await axios.post(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDQAYjbj00Q1wXITr20zDZnm-lFAutbydc`,
         {
-          role: "user",
-          parts: [
+          contents: [
             {
-              text:
-                res ||
-                "how you prepare a schedule for my goal always use the input of users",
+              parts: [
+                {
+                  text:  prompt || "Explain how AI works in a few words",
+                },
+              ],
             },
           ],
-        },
-      ]);
+        }
+      );
 
-      const outputText = result.text || "";
-      Setres(outputText);
-      console.log(outputText);
+      const reply =
+        response?.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      
+
+      // console.log("Generated:", reply);
+      const cleanedReply = reply.replace(/```json|```/g, "").trim();
+      try{
+      data = JSON.parse(cleanedReply)
+      SetRes(data)
+      }
+      catch{
+        console.log("error")
+      }  
     } catch (error) {
-      console.log("error", error);
+      console.error("Error generating content:", error);
     }
   };
+// useEffect(() => {
+//   console.log("Updated res:", res);
+// }, [res]);
 
   return (
-    <API_Context.Provider value={{ res, Setres, generateContent }}>
+    <API_Context.Provider value={{ res, generateContent }}>
       {children}
     </API_Context.Provider>
   );

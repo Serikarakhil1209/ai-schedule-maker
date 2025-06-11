@@ -44,7 +44,7 @@ getDoc(useRef).then((doc)=>{
     console.log("no data")
   }
 }).catch((err)=>{
-console.log("error",err)
+console.log("error akhil",err)
 })
 }else{
   console.log("error in left line 24")
@@ -59,7 +59,7 @@ console.log("error",err)
 
   return (
     <div
-      className={`flex flex-col h-full transition-all duration-300 ease-in-out ${
+      className={` bg-black flex flex-col h-full transition-all duration-300 ease-in-out ${
         isOpen ? "p-6" : "p-4 items-center"
       }`}
     >
