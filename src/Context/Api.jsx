@@ -6,32 +6,31 @@ export const API_Context = createContext();
 export const API_Provider = ({ children }) => {
   const [res, SetRes] = useState("");
 
- 
 
   const generateContent = async (data) => {
-     const prompt = `
-You are an expert learning assistant.
+const prompt = `
+You are an expert AI learning assistant.
 
-The user has provided the following details:
+The user has shared the following information:
 - Goal: ${data.goal}
-- Days to study: ${data.days}
-- Time per day: ${data.timePerDay} hours
-- Other commitments: ${data.otherWorks}
-- Topics to learn: ${data.topics}
+- Available Days: ${data.days}
+- Daily Study Time: ${data.timePerDay} hours
+- Other Commitments: ${data.otherWorks}
+- Topics to Learn: ${data.topics}
 
-Create a personalized learning schedule based on the above inputs.
+Based on this, create a **personalized learning plan**.
 
-⚠️ Strict Output Format (in JSON):
+🛑 Strict Output Format (respond in pure JSON only):
 
 {
-  "goal":"write here what he wanted to become in single word only like goal what he has ",
+  "goal": "One-word representation of the user's goal (e.g., 'developer', 'designer')",
   "roadmap": [
-    { "day": 1, "topics": ["..."], "estimated_time": "X hours" },
+    { "day": 1, "topics": ["Topic A", "Topic B"], "estimated_time": "X hours" },
     ...
   ],
   "resources": {
-    "youtube": ["https://www.youtube.com/...", "..."],
-    "books": ["Book Title by Author", "..."]
+    "youtube": ["https://www.youtube.com/...", "https://..."],
+    "books": ["Book Title by Author", "Another Book Title"]
   },
   "additionalSuggestions": [
     "Technology 1",
@@ -39,12 +38,14 @@ Create a personalized learning schedule based on the above inputs.
   ]
 }
 
-Make sure the roadmap fits into the user's available days and time per day.
-Suggest only relevant and beginner-friendly YouTube channels and books.
-Also, recommend other technologies/tools the user should explore to complement their learning goal.
-
-Only respond with the JSON. Do not include any explanation or extra text.
+✅ Guidelines:
+- Ensure the roadmap fits within the user's available days and daily study hours.
+- Recommend only **beginner-friendly**, **relevant**, and **trusted** YouTube channels and books.
+- Suggest other useful technologies/tools that align with the user's goal.
+- Respond in **valid JSON only**, without any extra explanation or formatting.
 `;
+
+
 
     try {
       const response = await axios.post(
